@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.celinamax.easyfood.domain.Categoria;
 import com.celinamax.easyfood.repositories.CategoriaRepository;
+import com.celinamax.easyfood.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class CategoriaService {
@@ -14,6 +15,10 @@ public class CategoriaService {
 	
 	public Categoria buscar(Integer id) {
 		Categoria obj = repo.findOne(id);
+		if(obj == null) {
+			throw new ObjectNotFoundException("Objeto não Encontrado! Id: " + id 
+					+ ", Tipo: " + Categoria.class.getName());
+		}
 		return obj;
 		
 	}
