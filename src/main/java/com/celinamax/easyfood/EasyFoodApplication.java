@@ -9,10 +9,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.celinamax.easyfood.domain.Categoria;
 import com.celinamax.easyfood.domain.Cidade;
+import com.celinamax.easyfood.domain.Cliente;
+import com.celinamax.easyfood.domain.Endereco;
 import com.celinamax.easyfood.domain.Estado;
 import com.celinamax.easyfood.domain.Produto;
+import com.celinamax.easyfood.domain.enums.TipoCliente;
 import com.celinamax.easyfood.repositories.CategoriaRepository;
 import com.celinamax.easyfood.repositories.CidadeRepository;
+import com.celinamax.easyfood.repositories.ClienteRepository;
+import com.celinamax.easyfood.repositories.EnderecoRepository;
 import com.celinamax.easyfood.repositories.EstadoRepository;
 import com.celinamax.easyfood.repositories.ProdutoRepository;
 
@@ -27,6 +32,10 @@ public class EasyFoodApplication implements CommandLineRunner{
 	private EstadoRepository estadoRepository;
 	@Autowired
 	private CidadeRepository cidadeRepository;
+	@Autowired
+	private ClienteRepository clienteRepository;
+	@Autowired
+	private EnderecoRepository enderecoRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(EasyFoodApplication.class, args);
@@ -66,6 +75,18 @@ public class EasyFoodApplication implements CommandLineRunner{
 		
 		estadoRepository.save(Arrays.asList(est1,est2));
 		cidadeRepository.save(Arrays.asList(c1,c2,c3));
+		
+		Cliente cli1 = new Cliente(null, "Maria Silva", "maria@gmail.com", "000111222333", TipoCliente.PESSOAFISICA);
+		
+		cli1.getTelefones().addAll(Arrays.asList("3216-5055", "99113-7655"));
+		
+	    Endereco e1 = new Endereco(null, "Rua Flores", "300", "Apto 303", "Jardim", "38408-400", cli1, c1);
+	    Endereco e2 = new Endereco(null, "Avenida Matos", "105", "Sala 800", "Centro", "38777012", cli1, c2);
+	    
+	    cli1.getEnderecos().addAll(Arrays.asList(e1,e2));
+	    
+	    clienteRepository.save(Arrays.asList(cli1));
+	    enderecoRepository.save(Arrays.asList(e1,e2));
 		
 		
 		
