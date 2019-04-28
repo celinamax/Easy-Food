@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.celinamax.easyfood.domain.Categoria;
+import com.celinamax.easyfood.domain.Cliente;
 import com.celinamax.easyfood.dto.CategoriaDTO;
 import com.celinamax.easyfood.repositories.CategoriaRepository;
 import com.celinamax.easyfood.services.exceptions.DataIntegrityException;
@@ -36,8 +37,9 @@ public class CategoriaService {
 	}
 
 	public Categoria update(Categoria obj) {
-		find(obj.getId());
-		return repo.save(obj);
+		Categoria newObj = find(obj.getId());
+		updateData(newObj, obj);		
+		return repo.save(newObj);
 	}
 
 	public void delete(Integer id) {
@@ -61,6 +63,10 @@ public class CategoriaService {
 	
 	public Categoria fromDTO(CategoriaDTO objDTO) {
 		return new Categoria(objDTO.getId(), objDTO.getNome());
+	}
+	
+	private void updateData(Categoria newObj, Categoria obj) {
+		newObj.setNome(obj.getNome());		
 	}
 
 }
