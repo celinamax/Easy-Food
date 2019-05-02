@@ -11,6 +11,7 @@ import com.celinamax.easyfood.domain.PagamentoComBoleto;
 import com.celinamax.easyfood.domain.Pedido;
 import com.celinamax.easyfood.domain.Produto;
 import com.celinamax.easyfood.domain.enums.EstadoPagamento;
+import com.celinamax.easyfood.repositories.ClienteRepository;
 import com.celinamax.easyfood.repositories.ItemPedidoRepository;
 import com.celinamax.easyfood.repositories.PagamentoRepository;
 import com.celinamax.easyfood.repositories.PedidoRepository;
@@ -30,6 +31,12 @@ public class PedidoService {
 	private ProdutoRepository produtoRepository;
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
+	@Autowired
+	private ProdutoService produtoService;
+	@Autowired
+	private ClienteService clienteService;
+	@Autowired
+	private ClienteRepository clienteRepository;
 		
 	public Pedido find(Integer id) {
 		Pedido obj = repo.findOne(id);
@@ -44,6 +51,7 @@ public class PedidoService {
 	public Pedido insert(Pedido obj) {
 		obj.setId(null);
 		obj.setInstante(new Date());
+		obj.setCliente(clienteRepository.findOne(obj.getCliente().getId()));
 		obj.getPagamento().setEstado(EstadoPagamento.PENDENTE);
 		obj.getPagamento().setPedido(obj);
 		if(obj.getPagamento() instanceof PagamentoComBoleto) {
@@ -55,12 +63,12 @@ public class PedidoService {
 		pagamentoRepository.save(obj2.getPagamento());
 		for(ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.0);
-			int cod = ip.getProduto().getId();				
-			Produto x = produtoRepository.findOne(cod);					
-			ip.setPreco(x.getPreco());
+			ip.setProduto(produtoService.find(ip.getProduto().getId()));							
+			ip.setPreco(ip.getProduto().getPreco());
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.save(obj.getItens());
+		System.out.println(obj);
 		return obj;
 		
 		
