@@ -10,7 +10,8 @@
 	</parent>
 	<groupId>com.celinamax.easyfood</groupId>
 	<artifactId>EasyFood</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>	
+	
 	<name>EasyFood</name>
 	<description>Aplicação para pedidos em praça de alimentação</description>
 
