@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import com.celinamax.easyfood.services.DBService;
+import com.celinamax.easyfood.services.EmailService;
+import com.celinamax.easyfood.services.MockEmailService;
 
 @Configuration
 @Profile("test")
@@ -22,6 +24,11 @@ public class TestConfig {
 		dbService.instantiateTesteDatabase();
 		
 		return true;
+	}
+	
+	@Bean
+	public EmailService emailService() {
+		return new MockEmailService();
 	}
 
 }
