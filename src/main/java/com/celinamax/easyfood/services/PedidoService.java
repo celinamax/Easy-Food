@@ -23,22 +23,31 @@ public class PedidoService {
 	
 	@Autowired
 	private PedidoRepository repo;
+	
 	@Autowired
 	private BoletoService boletoService;
+	
 	@Autowired
 	private PagamentoRepository pagamentoRepository;
+	
 	@Autowired
 	private ProdutoRepository produtoRepository;
+	
 	@Autowired
 	private ItemPedidoRepository itemPedidoRepository;
+	
 	@Autowired
 	private ProdutoService produtoService;
+	
 	@Autowired
 	private ClienteService clienteService;
+	
 	@Autowired
 	private ClienteRepository clienteRepository;
+	
 	@Autowired
 	private EmailService emailService;
+	
 		
 	public Pedido find(Integer id) {
 		Pedido obj = repo.findOne(id);
