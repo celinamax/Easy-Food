@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.celinamax.easyfood.domain.ItemPedido;
 import com.celinamax.easyfood.domain.PagamentoComBoleto;
 import com.celinamax.easyfood.domain.Pedido;
-import com.celinamax.easyfood.domain.Produto;
 import com.celinamax.easyfood.domain.enums.EstadoPagamento;
 import com.celinamax.easyfood.repositories.ClienteRepository;
 import com.celinamax.easyfood.repositories.ItemPedidoRepository;
@@ -79,7 +78,7 @@ public class PedidoService {
 			ip.setPedido(obj);
 		}
 		itemPedidoRepository.save(obj.getItens());
-		emailService.sendOrderConfirmationEmail(obj);
+		emailService.sendOrderConfirmationHtmlEmail(obj);
 		return obj;
 		
 		
