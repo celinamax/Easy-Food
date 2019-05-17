@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.celinamax.easyfood.domain.ItemPedido;
@@ -36,13 +37,13 @@ public class PedidoService {
 	private ItemPedidoRepository itemPedidoRepository;
 	
 	@Autowired
+	private ClienteRepository clienteRepository;
+	
+	@Autowired
 	private ProdutoService produtoService;
 	
-	@Autowired
-	private ClienteService clienteService;
-	
-	@Autowired
-	private ClienteRepository clienteRepository;
+	/*@Autowired
+	private ClienteService clienteService;	*/
 	
 	@Autowired
 	private EmailService emailService;
@@ -73,7 +74,7 @@ public class PedidoService {
 		pagamentoRepository.save(obj.getPagamento());
 		for(ItemPedido ip : obj.getItens()) {
 			ip.setDesconto(0.0);
-			ip.setProduto(produtoService.find(ip.getProduto().getId()));							
+			ip.setProduto(produtoRepository.findOne(ip.getProduto().getId()));							
 			ip.setPreco(ip.getProduto().getPreco());
 			ip.setPedido(obj);
 		}

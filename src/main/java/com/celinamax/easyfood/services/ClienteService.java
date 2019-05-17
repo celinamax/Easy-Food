@@ -81,23 +81,21 @@ public class ClienteService {
 	public Cliente fromDTO(ClienteNewDTO objDTO) {
 		Cliente cli = new Cliente(null, objDTO.getNome(), objDTO.getEmail(), objDTO.getCpfOuCnpj(), TipoCliente.toEnum(objDTO.getTipo()));
 		Cidade cid = new Cidade(objDTO.getCidadeId(), null, null);
+		//Cidade cid = cidadeRepository.findOne(objDto.getCidadeId()); codigo do Nelio
 		Endereco end = new Endereco(null, objDTO.getLogradouro(), objDTO.getNumero(), objDTO.getComplemento(), objDTO.getBairro(), objDTO.getCep(), cli, cid);
 		cli.getEnderecos().add(end);
 		cli.getTelefones().add(objDTO.getTelefone1());
-		if(objDTO.getTelefone2() != null) {
+		if(objDTO.getTelefone2()!= null) {
 			cli.getTelefones().add(objDTO.getTelefone2());
 		}
-		if(objDTO.getTelefone3() != null) {
+		if(objDTO.getTelefone3()!= null) {
 			cli.getTelefones().add(objDTO.getTelefone3());
 		}
-		return cli;
-		
-		
+		return cli;		
 	}
 	
 	private void updateData(Cliente newObj, Cliente obj) {
 		newObj.setNome(obj.getNome());
 		newObj.setEmail(obj.getEmail());
 	}
-
 }

@@ -17,7 +17,7 @@ import com.celinamax.easyfood.services.SmtpEmailService;
 public class DevConfig {
 	
 	@Autowired
-	private DBService dbService;
+	private DBService dbService;	
 	
 	@Value("${spring.jpa.hibernate.ddl-auto}")
 	private String strategy;
@@ -29,7 +29,7 @@ public class DevConfig {
 			return false;
 		}
 		
-		dbService.instantiateTesteDatabase();		
+		dbService.instantiateTestDatabase();		
 		return true;
 	}
 	
