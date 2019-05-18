@@ -9,6 +9,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.celinamax.easyfood.domain.Cidade;
@@ -26,6 +27,9 @@ import com.celinamax.easyfood.services.exceptions.ObjectNotFoundException;
 public class ClienteService {
 	
 	@Autowired
+	private BCryptPasswordEncoder pe;
+	
+	@Autowired
 	private ClienteRepository repo;
 	
 	@Autowired
@@ -37,8 +41,7 @@ public class ClienteService {
 			throw new ObjectNotFoundException("Objeto não Encontrado! Id: " + id 
 					+ ", Tipo: " + Cliente.class.getName());
 		}
-		return obj;
-		
+		return obj;		
 	}
 	
 	@Transactional
@@ -61,7 +64,6 @@ public class ClienteService {
 			repo.delete(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Não é possível excluir porque há pedidos relacionadas!");
-
 		}
 	}
 	
@@ -74,22 +76,22 @@ public class ClienteService {
 		return repo.findAll(pageRequest);
 	}
 	
-	public Cliente fromDTO(ClienteDTO objDTO) {
-		return new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), null, null);
+	public Cliente fromDTO(ClienteDTO objDto) {
+		return new Cliente(objDto.getId(), objDto.getNome(), objDto.getEmail(), null, null, null);
 	}
 	
-	public Cliente fromDTO(ClienteNewDTO objDTO) {
-		Cliente cli = new Cliente(null, objDTO.getNome(), objDTO.getEmail(), objDTO.getCpfOuCnpj(), TipoCliente.toEnum(objDTO.getTipo()));
-		Cidade cid = new Cidade(objDTO.getCidadeId(), null, null);
+	public Cliente fromDTO(ClienteNewDTO objDto) {
+		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()), pe.encode(objDto.getSenha()));
+		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
 		//Cidade cid = cidadeRepository.findOne(objDto.getCidadeId()); codigo do Nelio
-		Endereco end = new Endereco(null, objDTO.getLogradouro(), objDTO.getNumero(), objDTO.getComplemento(), objDTO.getBairro(), objDTO.getCep(), cli, cid);
+		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), objDto.getBairro(), objDto.getCep(), cli, cid);
 		cli.getEnderecos().add(end);
-		cli.getTelefones().add(objDTO.getTelefone1());
-		if(objDTO.getTelefone2()!= null) {
-			cli.getTelefones().add(objDTO.getTelefone2());
+		cli.getTelefones().add(objDto.getTelefone1());
+		if(objDto.getTelefone2()!= null) {
+			cli.getTelefones().add(objDto.getTelefone2());
 		}
-		if(objDTO.getTelefone3()!= null) {
-			cli.getTelefones().add(objDTO.getTelefone3());
+		if(objDto.getTelefone3()!= null) {
+			cli.getTelefones().add(objDto.getTelefone3());
 		}
 		return cli;		
 	}
