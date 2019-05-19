@@ -10,11 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import com.celinamax.easyfood.domain.Pedido;
 
+@Service
 public abstract class AbstractEmailService implements EmailService {
 	
 	@Value("${default.sender}")
@@ -23,7 +25,7 @@ public abstract class AbstractEmailService implements EmailService {
 	@Autowired
 	private TemplateEngine templateEngine;
 	
-	@Autowired
+	@Autowired	
 	private JavaMailSender javaMailSender;
 	
 	@Override
@@ -58,7 +60,8 @@ public abstract class AbstractEmailService implements EmailService {
 			sendOrderConfirmationEmail(obj);
 		}
 	}
-
+	
+	
 	protected MimeMessage prepareMimeMessageFromPedido(Pedido obj) throws MessagingException {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
