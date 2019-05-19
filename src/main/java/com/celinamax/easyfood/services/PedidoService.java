@@ -3,10 +3,13 @@ package com.celinamax.easyfood.services;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
+import com.celinamax.easyfood.domain.Cliente;
 import com.celinamax.easyfood.domain.ItemPedido;
 import com.celinamax.easyfood.domain.PagamentoComBoleto;
 import com.celinamax.easyfood.domain.Pedido;
@@ -16,6 +19,8 @@ import com.celinamax.easyfood.repositories.ItemPedidoRepository;
 import com.celinamax.easyfood.repositories.PagamentoRepository;
 import com.celinamax.easyfood.repositories.PedidoRepository;
 import com.celinamax.easyfood.repositories.ProdutoRepository;
+import com.celinamax.easyfood.security.UserSS;
+import com.celinamax.easyfood.services.exceptions.AuthorizationException;
 import com.celinamax.easyfood.services.exceptions.ObjectNotFoundException;
 
 @Service
@@ -80,9 +85,16 @@ public class PedidoService {
 		}
 		itemPedidoRepository.save(obj.getItens());
 		emailService.sendOrderConfirmationHtmlEmail(obj);
-		return obj;
-		
-		
+		return obj;		
 	}
-
+	
+	public Page<Pedido> findPage(Integer page, Integer linesPerPage, String orderBy, String direction) {
+		UserSS user = UserService.authenticated();
+		if(user == null) {
+			throw new AuthorizationException("Acesso Negado!");
+		}
+		PageRequest pageRequest = new PageRequest(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		Cliente cliente = clienteRepository.findOne(user.getId());
+		return repo.findByCliente(cliente, pageRequest);		
+	}
 }
