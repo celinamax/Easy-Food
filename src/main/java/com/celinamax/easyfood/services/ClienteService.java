@@ -15,11 +15,14 @@ import org.springframework.stereotype.Service;
 import com.celinamax.easyfood.domain.Cidade;
 import com.celinamax.easyfood.domain.Cliente;
 import com.celinamax.easyfood.domain.Endereco;
+import com.celinamax.easyfood.domain.enums.Perfil;
 import com.celinamax.easyfood.domain.enums.TipoCliente;
 import com.celinamax.easyfood.dto.ClienteDTO;
 import com.celinamax.easyfood.dto.ClienteNewDTO;
 import com.celinamax.easyfood.repositories.ClienteRepository;
 import com.celinamax.easyfood.repositories.EnderecoRepository;
+import com.celinamax.easyfood.security.UserSS;
+import com.celinamax.easyfood.services.exceptions.AuthorizationException;
 import com.celinamax.easyfood.services.exceptions.DataIntegrityException;
 import com.celinamax.easyfood.services.exceptions.ObjectNotFoundException;
 
@@ -36,6 +39,12 @@ public class ClienteService {
 	private EnderecoRepository enderecoRepository;
 	
 	public Cliente find(Integer id) {
+		
+		UserSS user = UserService.authenticated();
+		if (user==null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso Negado!");
+		}
+		
 		Cliente obj = repo.findOne(id);
 		if(obj == null) {
 			throw new ObjectNotFoundException("Objeto não Encontrado! Id: " + id 
