@@ -29,13 +29,9 @@ public class UserSS implements UserDetails {
 		this.authorities = perfis.stream().map(x -> new SimpleGrantedAuthority(x.getDescricao())).collect(Collectors.toList());
 	}
 
-
-
 	public Integer getId() {
 		return id;
-	}
-	
-	
+	}	
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {		
@@ -70,6 +66,10 @@ public class UserSS implements UserDetails {
 	@Override
 	public boolean isEnabled() {		
 		return true;
+	}
+	
+	public boolean hasRole(Perfil perfil) {
+		return getAuthorities().contains(new SimpleGrantedAuthority(perfil.getDescricao()));
 	}
 	
 
