@@ -1,11 +1,13 @@
 package com.celinamax.easyfood.services;
 
+import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import com.celinamax.easyfood.domain.enums.Perfil;
 import com.celinamax.easyfood.domain.enums.TipoCliente;
 import com.celinamax.easyfood.dto.ClienteDTO;
 import com.celinamax.easyfood.dto.ClienteNewDTO;
+import com.celinamax.easyfood.repositories.CidadeRepository;
 import com.celinamax.easyfood.repositories.ClienteRepository;
 import com.celinamax.easyfood.repositories.EnderecoRepository;
 import com.celinamax.easyfood.security.UserSS;
@@ -38,10 +41,22 @@ public class ClienteService {
 	private ClienteRepository repo;
 	
 	@Autowired
+	private CidadeRepository cidadeRepository;
+	
+	@Autowired
 	private EnderecoRepository enderecoRepository;
 	
 	@Autowired
 	private S3Service s3Service;
+	
+	@Autowired
+	private ImageService imageService;	
+	
+	@Value("${img.prefix.client.profile}")
+	private String prefix;
+	
+	/*@Value("${img.profile.size}")
+	private Integer size;*/
 	
 	public Cliente find(Integer id) {
 		
@@ -77,12 +92,27 @@ public class ClienteService {
 		try {
 			repo.delete(id);
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException("Não é possível excluir porque há pedidos relacionadas!");
+			throw new DataIntegrityException("Não é possível excluir porque há pedidos relacionados!");
 		}
 	}
 	
 	public List<Cliente> findAll(){
 		return repo.findAll();
+	}
+	
+	public Cliente findByEmail(String email) {
+
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !email.equals(user.getUsername())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		
+		Cliente obj = repo.findByEmail(email);
+		if (obj == null) {
+			throw new ObjectNotFoundException(
+					"Objeto não encontrado! Id: " + user.getId() + ", Tipo: " + Cliente.class.getName());
+		}
+		return obj;
 	}
 	
 	public  Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
@@ -95,10 +125,12 @@ public class ClienteService {
 	}
 	
 	public Cliente fromDTO(ClienteNewDTO objDto) {
-		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(), TipoCliente.toEnum(objDto.getTipo()), pe.encode(objDto.getSenha()));
-		Cidade cid = new Cidade(objDto.getCidadeId(), null, null);
-		//Cidade cid = cidadeRepository.findOne(objDto.getCidadeId()); codigo do Nelio
-		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), objDto.getBairro(), objDto.getCep(), cli, cid);
+		Cliente cli = new Cliente(null, objDto.getNome(), objDto.getEmail(), objDto.getCpfOuCnpj(),
+				TipoCliente.toEnum(objDto.getTipo()), pe.encode(objDto.getSenha()));
+		/*Cidade cid = new Cidade(objDto.getCidadeId(), null, null);*/
+		Cidade cid = cidadeRepository.findOne(objDto.getCidadeId());
+		Endereco end = new Endereco(null, objDto.getLogradouro(), objDto.getNumero(), objDto.getComplemento(), 
+				objDto.getBairro(), objDto.getCep(), cli, cid);
 		cli.getEnderecos().add(end);
 		cli.getTelefones().add(objDto.getTelefone1());
 		if(objDto.getTelefone2()!= null) {
@@ -121,11 +153,12 @@ public class ClienteService {
 		if(user == null) {
 			throw new AuthorizationException("Acesso Negado");
 		}
-		URI uri =  s3Service.uploadFile(multipartFile);
 		
-		Cliente cli = repo.findOne(user.getId());
-		cli.setImageUrl(uri.toString());
-		repo.save(cli);
-		return uri;
+		BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+		/*jpgImage = imageService.cropSquare(jpgImage);
+		jpgImage = imageService.resize(jpgImage, size);*/
+		String fileName = prefix + user.getId() + ".jpg";
+		
+		return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");		
 	}
 }
