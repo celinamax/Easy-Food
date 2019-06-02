@@ -82,9 +82,9 @@ public class ClienteService {
 	}
 	
 	public Cliente update(Cliente obj) {
-		Cliente newObj = find(obj.getId());
-		updateData(newObj, obj);		
-		return repo.save(newObj);
+		Cliente objDb = find(obj.getId());
+		updateData(objDb, obj);		
+		return repo.save(objDb);
 	}
 
 	public void delete(Integer id) {
